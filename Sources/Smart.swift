@@ -126,7 +126,7 @@ final class Monitor {
             }
             if let r = readings[disk.device] { rows.append(Row(disk: disk, reading: r, idle: skip)) }
         }
-        rows.sort { ($0.disk.role, $0.reading.serial) < ($1.disk.role, $1.reading.serial) }
+        rows.sort { ($0.disk.kind, $0.disk.label, $0.reading.serial) < ($1.disk.kind, $1.disk.label, $1.reading.serial) }
         return Snapshot(rows: rows, raids: raids, updated: Date())
     }
 }

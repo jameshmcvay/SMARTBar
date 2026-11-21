@@ -2,8 +2,11 @@ import Foundation
 import IOKit
 
 struct Disk {
-    let device: String  // e.g. "disk10"
-    let role: String    // e.g. "RAID1 mirror · Big Store, Scratch"
+    let device: String     // e.g. "disk10"
+    let kind: String       // "Single", "RAID1", "RAID0" or "JBOD"
+    let volumes: [String]  // names of the volumes this disk backs
+
+    var label: String { volumes.isEmpty ? "—" : volumes.joined(separator: ", ") }
 }
 
 struct RaidSet {
@@ -38,7 +41,7 @@ private func diskutil(_ args: [String]) -> [String: Any] {
     return obj as? [String: Any] ?? [:]
 }
 
-/// External physical disks, each labelled with the RAID set and/or APFS volumes it backs.
+/// External physical disks, each with its kind (single or RAID level) and the APFS volumes it backs.
 func discoverDisks() -> (disks: [Disk], raids: [RaidSet]) {
     let list = diskutil(["list", "-plist", "external", "physical"])
     let whole = list["WholeDisks"] as? [String] ?? []
@@ -62,29 +65,28 @@ func discoverDisks() -> (disks: [Disk], raids: [RaidSet]) {
         }
     }
 
-    // RAID member slice -> label for its set
+    // RAID member slice -> kind and volumes of its set
+    let kinds = ["Mirror": "RAID1", "Stripe": "RAID0", "Concat": "JBOD"]
     var raids: [RaidSet] = []
-    var raidLabel: [String: String] = [:]
+    var raidMember: [String: (kind: String, volumes: [String])] = [:]
     for s in diskutil(["appleRAID", "list", "-plist"])["AppleRAIDSets"] as? [[String: Any]] ?? [] {
         let name = s["Name"] as? String ?? "RAID"
         let level = s["Level"] as? String ?? ""
         let members = s["Members"] as? [[String: Any]] ?? []
         raids.append(RaidSet(name: name, level: level, status: s["Status"] as? String ?? "Unknown",
                              memberStatuses: members.map { $0["MemberStatus"] as? String ?? "Unknown" }))
-        var label = level.isEmpty ? name : "\(name) \(level.lowercased())"
-        if let bsd = s["BSD Name"] as? String, let vols = volumes[bsd], !vols.isEmpty {
-            label += " · " + vols.joined(separator: ", ")
-        }
+        let vols = (s["BSD Name"] as? String).flatMap { volumes[$0] } ?? []
         for m in members {
-            if let bsd = m["BSD Name"] as? String { raidLabel[bsd] = label }
+            if let bsd = m["BSD Name"] as? String { raidMember[bsd] = (kinds[level] ?? "RAID", vols) }
         }
     }
 
     let disks = whole.map { dev -> Disk in
         let parts = slices[dev] ?? [dev]
-        if let label = parts.compactMap({ raidLabel[$0] }).first { return Disk(device: dev, role: label) }
-        let vols = parts.flatMap { volumes[$0] ?? [] }
-        return Disk(device: dev, role: vols.isEmpty ? "—" : vols.joined(separator: ", "))
+        if let raid = parts.compactMap({ raidMember[$0] }).first {
+            return Disk(device: dev, kind: raid.kind, volumes: raid.volumes)
+        }
+        return Disk(device: dev, kind: "Single", volumes: parts.flatMap { volumes[$0] ?? [] })
     }
     return (disks, raids)
 }
