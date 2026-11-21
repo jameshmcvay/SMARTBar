@@ -20,7 +20,7 @@ if CommandLine.arguments.contains("--dump") {
     for raid in snap.raids {
         print("\(raid.name) \(raid.level): \(raid.status), members \(raid.memberStatuses.joined(separator: "/"))")
     }
-    if smartctlPath == nil { print("smartctl not found") }
+    print("smartctl: \(smartctlPath ?? "not found")")
     exit(0)
 }
 

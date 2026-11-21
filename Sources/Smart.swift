@@ -42,8 +42,9 @@ struct DriveReading {
     var severity: Severity { problems.map { $0.0 }.max() ?? .ok }
 }
 
-let smartctlPath: String? = ["/opt/homebrew/bin/smartctl", "/usr/local/bin/smartctl",
-                             "/opt/local/sbin/smartctl", "/usr/local/sbin/smartctl"]
+/// The copy bundled in release builds if present, otherwise one installed by Homebrew or MacPorts.
+let smartctlPath: String? = ([Bundle.main.path(forAuxiliaryExecutable: "smartctl")].compactMap { $0 }
+    + ["/opt/homebrew/bin/smartctl", "/usr/local/bin/smartctl", "/opt/local/sbin/smartctl", "/usr/local/sbin/smartctl"])
     .first { FileManager.default.isExecutableFile(atPath: $0) }
 
 /// Reads identity, health and attributes (read-only). Returns nil if the device has no

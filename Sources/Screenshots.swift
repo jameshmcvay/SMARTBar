@@ -46,7 +46,7 @@ private func symbol(_ name: String, _ color: NSColor, size: CGFloat) -> NSImage?
     return NSImage(systemSymbolName: name, accessibilityDescription: nil)?.withSymbolConfiguration(config)
 }
 
-private func draw(_ image: NSImage?, centeredAt point: NSPoint) {
+private func drawSymbol(_ image: NSImage?, centeredAt point: NSPoint) {
     guard let image = image else { return }
     let rect = NSRect(x: point.x - image.size.width / 2, y: point.y - image.size.height / 2,
                       width: image.size.width, height: image.size.height)
@@ -138,8 +138,8 @@ private struct MockMenu {
             string.draw(at: NSPoint(x: textX, y: y + (rowHeight - string.size().height) / 2))
         }
         func chevron() {
-            SMARTBar.draw(symbol("chevron.right", .secondaryLabelColor, size: 9),
-                          centeredAt: NSPoint(x: frame.maxX - rightInset, y: y + rowHeight / 2))
+            drawSymbol(symbol("chevron.right", .secondaryLabelColor, size: 9),
+                       centeredAt: NSPoint(x: frame.maxX - rightInset, y: y + rowHeight / 2))
         }
         for item in items {
             switch item {
@@ -153,8 +153,8 @@ private struct MockMenu {
                 chevron()
             case .command(let title, let key, let checked, let submenu):
                 if checked {
-                    SMARTBar.draw(symbol("checkmark", .labelColor, size: 10),
-                                  centeredAt: NSPoint(x: frame.minX + 13, y: y + rowHeight / 2))
+                    drawSymbol(symbol("checkmark", .labelColor, size: 10),
+                               centeredAt: NSPoint(x: frame.minX + 13, y: y + rowHeight / 2))
                 }
                 line(text(title, .labelColor))
                 if !key.isEmpty {
@@ -228,7 +228,7 @@ private func render(_ rows: [Row], open: Int, _ appearance: NSAppearance, dark: 
     let pill = NSRect(x: menuOrigin.x, y: 2, width: 34 + title.size().width, height: barHeight - 4)
     NSColor.labelColor.withAlphaComponent(0.14).setFill()
     NSBezierPath(roundedRect: pill, xRadius: 5, yRadius: 5).fill()
-    draw(symbol("internaldrive", .labelColor, size: 13), centeredAt: NSPoint(x: pill.minX + 16, y: pill.midY))
+    drawSymbol(symbol("internaldrive", .labelColor, size: 13), centeredAt: NSPoint(x: pill.minX + 16, y: pill.midY))
     title.draw(at: NSPoint(x: pill.minX + 28, y: pill.midY - title.size().height / 2))
 
     menu.draw(at: menuOrigin, dark: dark)

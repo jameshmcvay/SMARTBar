@@ -41,8 +41,7 @@ The first check after launch and **Refresh Now** read every drive and can wake s
 ## Requirements
 
 - macOS 13 or later
-- smartmontools: `brew install smartmontools`
-- Xcode or the Xcode command line tools, to build
+- To build from source: Xcode or the Xcode command line tools, and smartmontools (`brew install smartmontools`)
 
 ## Build and run
 
@@ -68,6 +67,10 @@ There are no prebuilt downloads, and the app is not notarised.
 
 The temperature thresholds are two constants at the top of `Sources/Smart.swift`.
 
+## Releasing
+
+`./release.sh <version>` builds a universal app with `smartctl` bundled, signs it with a Developer ID, and produces a notarised DMG. Add `--publish` to tag the version and create the GitHub release. The one-time setup is described at the top of the script.
+
 ## Command line
 
 ```sh
@@ -87,4 +90,4 @@ build/SMARTBar.app/Contents/MacOS/SMARTBar --screenshots <folder>  # regenerate 
 
 MIT. See [LICENSE](LICENSE).
 
-smartmontools is a separate project under the GPL. SMARTBar runs your installed copy and does not include it.
+smartmontools is a separate project under the GPL (version 2 or later). An app built with `build.sh` runs your installed copy. A release built with `release.sh` bundles an unmodified `smartctl` as a separate program, with its licence inside the app and its exact source archive published next to the download. `vendor-smartctl.sh` is the build recipe.
