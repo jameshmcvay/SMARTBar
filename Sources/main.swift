@@ -1,12 +1,14 @@
 import AppKit
 
+// `SMARTBar --screenshots <folder>` draws the README's mock screenshots from sample data.
+if let i = CommandLine.arguments.firstIndex(of: "--screenshots"), i + 1 < CommandLine.arguments.count {
+    writeScreenshots(to: CommandLine.arguments[i + 1])
+    exit(0)
+}
+
 // `SMARTBar --dump` prints one reading of every drive to the terminal and exits.
-// `SMARTBar --dump --preview <folder>` also draws the menu's drive rows and a detail panel to PNGs.
 if CommandLine.arguments.contains("--dump") {
     let snap = Monitor().refresh(force: true, skipIdle: false)
-    if let i = CommandLine.arguments.firstIndex(of: "--preview"), i + 1 < CommandLine.arguments.count {
-        writePreview(snap.rows, to: CommandLine.arguments[i + 1])
-    }
     for row in snap.rows {
         let r = row.reading
         func n(_ v: Int?) -> String { v.map(String.init) ?? "–" }
