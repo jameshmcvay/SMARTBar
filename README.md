@@ -43,6 +43,10 @@ The first check after launch and **Refresh Now** read every drive and can wake s
 - macOS 13 or later
 - To build from source: Xcode or the Xcode command line tools, and smartmontools (`brew install smartmontools`)
 
+## Install
+
+Download the latest `SMARTBar-<version>.dmg` from the [releases page](https://github.com/jameshmcvay/SMARTBar/releases/latest), open it and drag SMARTBar to Applications. The app is signed and notarised and runs on Apple silicon and Intel Macs. It includes its own copy of `smartctl`, so there is nothing else to install.
+
 ## Build and run
 
 ```sh
@@ -53,8 +57,6 @@ open build/SMARTBar.app
 ```
 
 `build.sh` compiles with `swiftc` directly and signs the app ad hoc. There is no Xcode project. Move `build/SMARTBar.app` to `/Applications` before turning on **Launch at Login**.
-
-There are no prebuilt downloads, and the app is not notarised.
 
 ## Options
 
